@@ -1,0 +1,175 @@
+<!--
+This website was developed by Mengmeng Li (mengmeng.li@shnu.edu.cn).
+You are allowed to download this for non-commercial purposes, but please do not redistribute this for any reason.
+-->
+
+<html>
+<head>
+  <title>Consolidation Potential</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style type="text/css">
+    body {
+       margin: 0;
+       padding: 0;
+    }
+    html, body, #map{
+       width: 100%;
+       height: 100%;
+    }
+    </style>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/leaflet.css">
+  <!--鹰眼控件样式-->
+  <link href="css/Control.MiniMap.css" rel="stylesheet" />
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"></script>
+  <script src="js/jquery.min.js"></script>
+  <script src='js/mapbox.js'></script>
+  <script src="js/easy-button.js"></script>
+  <script src="js/leaflet.ajax.min.js"></script>
+  <script src="js/styles.js"></script>
+  <!--leaflet原生库+Zondy库-->
+  <script src="js/webclient-leaflet-framework.min.js"></script>
+  <!--鹰眼控件扩展库-->
+  <script src="js/Control.MiniMap.js"></script>
+
+</head>
+<body>
+    <div class="mapper no-padding">
+      <div id="map" class="map">
+      	<div id="download_icon"><a href="#" target="_blank">
+			<img src="img/download_icon.png" width="44" height="50"></a></div>
+	<div id="homepage"><a href="#" target="_blank"><img src="img/homepage.png"></a></div>
+	<div class="btn-group" style="z-index: 1001"></div>
+	  </div>
+      	<div id="logo"><img src="img/logo.png"></div>
+    </div>
+
+<script>
+function zoomTo(arg) {
+	if(arg == 'ex1') {
+		map.setView([30.751402, 120.598529], 14)
+	}
+	if(arg == 'ex2') {
+		map.setView([30.796472, 120.372334], 14) 
+	}
+	if(arg == 'ex3') {
+		map.setView([30.369243, 120.094548], 14)
+	}
+	if(arg == 'ex4') {
+		map.setView([27.513669, 120.509684], 14)
+	}
+	if(arg == 'ex5') {
+		map.setView([28.985832, 119.151411], 14)
+}}
+</script>
+
+<div class='map-overlay-left' id="exmpl">
+        <div class='map-overlay-inner'>
+            <div>Zoom to Examples:</br>
+				<img src="img/ex1.png" onClick="zoomTo('ex1')"><br>
+				<img src="img/ex2.png" onClick="zoomTo('ex2')"><br>		
+				<img src="img/ex3.png" onClick="zoomTo('ex3')"><br>
+				<img src="img/ex4.png" onClick="zoomTo('ex4')"><br>
+				<img src="img/ex5.png" onClick="zoomTo('ex5')"><br>
+            </div>
+        </div>
+    </div>
+
+<script>
+        var dark_basemap= L.tileLayer('https://maps.geoapify.com/v1/tile/dark-matter-brown/{z}/{x}/{y}.png?&apiKey=2512b85baf1c46d383d39cfd7fd2ee1a', {
+	    	minZoom: 3,
+            		maxZoom: 14,
+            		tms: false,
+          		attribution: 'OpenStreetMap'
+			});
+       var bright_basemap = L.tileLayer('https://maps.geoapify.com/v1/tile/osm-bright-grey/{z}/{x}/{y}.png?&apiKey=2512b85baf1c46d383d39cfd7fd2ee1a', {
+				minZoom: 3,
+          		maxZoom: 14,
+          		tms: false,
+          		attribution: 'OpenStreetMap'
+			});
+
+       var ESRI = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+				minZoom: 3,
+          		maxZoom: 14,
+          		tms: false,
+          		attribution: 'ESRI'
+			});
+        var Potential = L.tileLayer('map/potential/{z}/{x}/{y}.png', {
+          		minZoom: 3,
+          		maxZoom: 14,
+          		tms: false,
+          		attribution: '@ Mengmeng Li'
+        		});
+		var Boundary = L.tileLayer('map/boundary/{z}/{x}/{y}.png', {
+          		minZoom: 3,
+          		maxZoom: 14,
+          		tms: false,
+          		attribution: '@ Mengmeng Li'
+        		});
+	var map = L.map('map', {
+			center: [30.796472, 120.372334],
+			zoom: 14,
+			layers: [dark_basemap, Potential, Boundary]
+	});
+
+	// 限制地图显示范围（中国全境+周边缓冲区）
+	map.setMaxBounds([ 
+    	[26.6, 117.3],  // 西南角 
+    	[32.5, 123.8] // 东北角 
+		]);
+ 
+// 设置最小/最大缩放级别 
+map.options.minZoom  = 3;
+map.options.maxZoom  = 14;	
+
+	var base_Layers = {
+			"OSM-dark-brown": dark_basemap,
+			"OSM-bright-grey": bright_basemap,
+			"Satellite Image (ESRI)": ESRI
+	};
+
+	var MapChina_Layers = {
+			"Consolidation Potential": Potential,
+			"Boundary Zhejiang": Boundary
+	};
+	
+	L.control.layers(base_Layers, MapChina_Layers, {
+			collapsed: false,
+			position: 'bottomright'}).addTo(map);
+
+       //Add eagle eye
+	var OSM_Map = new L.TileLayer('https://a.tile.openstreetmap.de/{z}/{x}/{y}.png', {
+                minZoom: 3,
+                maxZoom: 14,
+            });
+
+        var miniMap = new L.Control.MiniMap(OSM_Map, {
+                //Display eagle eye or not
+                toggleDisplay: true,
+		position: 'bottomleft'
+            }).addTo(map);
+
+	var closeButton = document.createElement('div');
+		closeButton.className = 'cB';
+		legend.appendChild(closeButton);
+
+	closeButton.onclick = function() {
+		document.getElementById("legend").style.visibility = 'hidden';
+		document.getElementById("showLegend").style.visibility = 'visible';
+ 	}
+
+	document.getElementById("showLegend").onclick = function() {
+		document.getElementById("legend").style.visibility = 'visible';
+		document.getElementById("showLegend").style.visibility = 'hidden';
+	}
+
+  </script>
+</body>
+</html>
